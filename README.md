@@ -1,4 +1,4 @@
-# redshift-for-brghtness
+# Using Redshift for "fake" brightness control
 
 This is a bash script that uses Jon Lund Steffensen's http://jonls.dk/redshift/ to create a software based (fake) brigthness control for LCD displays where Linux cannot directly control the backlight of the LCD display.
 
