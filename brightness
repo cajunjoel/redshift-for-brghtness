@@ -1,0 +1,42 @@
+#!/bin/bash
+UP_OR_DOWN=$1
+SAVEFILE=$(echo ~/.config/brightness.txt)
+
+# Figure out our arguments, if any
+if [ $UP_OR_DOWN ]; then
+    if [ $UP_OR_DOWN == 'up' ]; then
+      INCREMENT=0.1
+    elif [ $UP_OR_DOWN == 'down' ]; then
+      INCREMENT=-0.1
+    else 
+      echo "Usage: brightness [up|down]"
+      exit 0
+    fi
+else
+    echo "Current brightness is `cat $SAVEFILE` ($SAVEFILE)"
+    exit 0
+fi
+    
+TEMPERATURE=$(redshift -p | fgrep temp | grep -o '[0-9][0-9][0-9][0-9]')
+
+# Get the last known brightness or the current brightness
+if [ -f $SAVEFILE ]; then
+    BRIGHTNESS=$(cat $SAVEFILE)
+else 
+    BRIGHTNESS=$(redshift -p | fgrep Bright | grep -o '[0-9.].*')
+fi
+
+# Adjust the brightness, allowing for limits
+BRIGHTNESS=$(echo "$BRIGHTNESS + $INCREMENT" | bc)
+if [ $(echo "$BRIGHTNESS > 1.0" | bc) -eq 1 ]; then
+    BRIGHTNESS=1.0
+elif [ $(echo "$BRIGHTNESS < 0.1" | bc) -eq 1 ]; then
+    BRIGHTNESS=0.1
+fi 
+
+# Save this value as the last known temperature
+echo $BRIGHTNESS > $SAVEFILE
+
+# Set the brightness
+redshift -O $TEMPERATURE -b $BRIGHTNESS
+
